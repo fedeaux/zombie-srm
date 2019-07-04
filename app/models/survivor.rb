@@ -1,4 +1,6 @@
 class Survivor < ApplicationRecord
+  enum gender: [ :male, :female ]
+
   RESOURCES = [
     { name: :water, points: 4 },
     { name: :food, points: 3 },
@@ -7,4 +9,7 @@ class Survivor < ApplicationRecord
   ].freeze
 
   has_many :infection_marks, foreign_key: "to_id", class_name: "InfectionMark"
+
+  scope :infected, ->{ where(infected: true) }
+  scope :healthy, ->{ where(infected: false) }
 end
