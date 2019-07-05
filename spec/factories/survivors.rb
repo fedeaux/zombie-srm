@@ -2,7 +2,7 @@
 FactoryBot.define do
   factory :survivor do
     sequence(:name) { |n| "Campinas Survivor #{n}" }
-    gender { 1 }
+    gender { 'female' }
     age { 22 }
     latitude { -22.9329 }
     longitude { -47.0738 }

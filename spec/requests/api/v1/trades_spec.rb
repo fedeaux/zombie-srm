@@ -29,6 +29,13 @@ RSpec.describe 'api/v1/trades', type: :request do
       expect(JSON.parse(response.body)['message']).to eq "Can't trade with the infected"
     end
 
+    it "fails to trade with the same survivor in both sides" , :aggregate_failures do
+      post api_v1_trades_path,
+           params: valid_trade_params(campinas_survivor, campinas_survivor)
+
+      expect(JSON.parse(response.body)['message']).to eq "Can't trade with yourself"
+    end
+
     it "fails to trade if one survivor doesn't have enough of what he's offering" , :aggregate_failures do
       post api_v1_trades_path,
            params: not_enough_trade_params(campinas_survivor, jundiai_survivor)

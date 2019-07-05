@@ -1,24 +1,135 @@
-# README
+# ZSSN (Zombie Survival Social Network)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a programming test based on https://gist.github.com/raphapizzi/b1f4a84a1f19ffcffa5310dc0773b0ff
 
-Things you may want to cover:
+## API
 
-* Ruby version
+### Survivors
 
-* System dependencies
+#### Create a survivor with resources
 
-* Configuration
+```
+POST /api/v1/survivors
+params example:
 
-* Database creation
+{
+  "survivor": {
+    "name": "Edson Arantes do Nascimento" # String
+    "age": 63 # Integer
+    "gender": "male" # String, allowed: "male", "female"
+    "latitude": -22.9329 # Float
+    "longitude": -47.0738 # float
+    "water": 2 # Integer
+    "food": 4 # Integer
+    "medication": 5 # Integer
+    "ammunition": 4 # Integer
+  }
+}
 
-* Database initialization
+The reponse will be just the same parameters given back or an error message
 
-* How to run the test suite
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+All fields are optional because it might be hard to get all information from suspicious survivors (They don't usually share information)
 
-* Deployment instructions
+Specs can be found at `specs/requests/api/v1/survivors_spec.rb`
 
-* ...
+#### Update a survivor's location
+
+```
+PUT /api/v1/survivors/:survivor_id
+params example:
+
+{
+  "survivor": {
+    "latitude": -22.9329 # Float
+    "longitude": -47.0738 # float
+  }
+}
+
+```
+
+Specs can be found at `specs/requests/api/v1/survivors_spec.rb`
+
+### Infection Marks
+
+#### Create an Infection Mark
+
+```
+PUT /api/v1/infection_marks
+params example:
+
+{
+  "infection_mark": {
+    "from_id": 1 # The survivor id that is reporting the mark
+    "to_id": 2 # The survivor id that is receiving the report
+  }
+}
+
+The reponse will be just the same parameters given back or an error message
+```
+
+##### Restrictions
+* A survivor that gets three or more infection marks is marked as infected and won't be able to perform trades (see below).
+* The same survivor can't report other survivor more than once.
+* A survivor can't report itself (from_id must be different than to_id)
+* An infected survivor can report other survivors as infected, but zombies usually don't play well with technology, so we are probably fine.
+
+Specs can be found at `specs/requests/api/v1/infection_marks_spec.rb` and `specs/models/infection_mark_spec.rb`
+
+### Trades
+
+#### Register a Trade
+```
+POST /api/v1/trades
+params example:
+
+  {
+    trade: [
+      {
+        survivor_id: 1,
+        # Resources given by user 1
+        water: 2
+      },
+      {
+        survivor_id: 2,
+        # Resources given by user 2
+        food: 1,
+        medication: 2,
+        ammunition: 1
+      }
+    ]
+  }
+
+Example responses
+{ "status": "success" }
+{ "status": "error", message: "Some error message"}
+```
+
+##### Restrictions
+* Infected survivors can't be part of trades.
+* A survivor can't offer more than what it has in it's resources.
+* A survivor can't trade with itself.
+* Trades must obey the points balance rule as described in the original challenge
+
+### Reports
+
+To get reports:
+```
+GET /api/v1/reports
+
+# example response:
+
+{
+  "infected_percentage": "20.2%",
+  "survivors_percentage": "79.8%",
+  "average_resources_per_survivor": {
+    "water": 5.11,
+    "food": 4.8,
+    "medication": 4.8,
+    "ammunition": 9.94
+  },
+  "lost_points_to_infected": 11130
+}
+
+```

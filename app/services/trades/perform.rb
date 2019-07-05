@@ -13,6 +13,9 @@ module Services
         infection_status = check_infection
         return infection_status if infection_status[:status] == 'error'
 
+        different_survivors_status = check_different_survivors
+        return different_survivors_status if different_survivors_status[:status] == 'error'
+
         ammounts_status = check_ammounts
         return ammounts_status if ammounts_status[:status] == 'error'
 
@@ -21,11 +24,6 @@ module Services
 
         perform_trade
         { status: 'success '}
-      end
-
-      def check_infection
-        return { status: 'success '} unless @survivor_trade_0[:survivor].infected? || @survivor_trade_1[:survivor].infected?
-        { status: 'error', message: "Can't trade with the infected"}
       end
 
       def normalize_params
@@ -39,6 +37,16 @@ module Services
             survivor_trade[resource[:name]] = 0
           end
         end
+      end
+
+      def check_infection
+        return { status: 'success '} unless @survivor_trade_0[:survivor].infected? || @survivor_trade_1[:survivor].infected?
+        { status: 'error', message: "Can't trade with the infected"}
+      end
+
+      def check_different_survivors
+        return { status: 'success '} unless @survivor_trade_0[:survivor].id == @survivor_trade_1[:survivor].id
+        { status: 'error', message: "Can't trade with yourself"}
       end
 
       def check_ammounts
