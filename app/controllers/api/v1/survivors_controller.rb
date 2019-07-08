@@ -1,6 +1,10 @@
 class Api::V1::SurvivorsController < Api::V1::ApiController
   before_action :set_survivor, only: [:show, :update]
 
+  def index
+    @survivors = Survivor.first(10)
+  end
+
   def update
     if @survivor.update(survivor_update_params)
       render 'show', status: :ok

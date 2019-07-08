@@ -12,4 +12,10 @@ class Survivor < ApplicationRecord
 
   scope :infected, ->{ where(infected: true) }
   scope :healthy, ->{ where(infected: false) }
+
+  def points
+    RESOURCES.map do |resource|
+      send(resource[:name]) * resource[:points]
+    end.inject(:+)
+  end
 end
